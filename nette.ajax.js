@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2012-2014 Vojtěch Dobeš
  * @license MIT
  *
- * @version 2.4.1
+ * @version 2.5.0
  */
 
 (function(window, $, undefined) {
@@ -498,7 +498,11 @@
 		success: function (payload, status, jqXHR, settings) {
 			if (payload.snippets) {
 				var requestHistory = this.historyExt && (! (settings.off && settings.off.indexOf('history') > -1));
-				this.updateSnippets(payload.snippets, false, requestHistory);
+
+				var perRequestAppend = ('nette' in settings && settings.nette.el && settings.nette.el.data('ajax-snippets-append') || '').split(' ');
+				var perRequestPrepend = ('nette' in settings && settings.nette.el && settings.nette.el.data('ajax-snippets-append') || '').split(' ');
+
+				this.updateSnippets(payload.snippets, false, requestHistory, perRequestAppend, perRequestPrepend);
 			}
 		}
 	}, {
@@ -514,7 +518,7 @@
 		complete: function (callback) {
 			this.completeQueue.add(callback);
 		},
-		updateSnippets: function (snippets, back, requestHistory) {
+		updateSnippets: function (snippets, back, requestHistory, perRequestAppend, perRequestPrepend) {
 			var that = this;
 			var elements = [];
 			for (var i in snippets) {
@@ -522,13 +526,13 @@
 				if ($el.get(0)) {
 					elements.push($el.get(0));
 				}
-				this.updateSnippet($el, snippets[i], back, requestHistory);
+				this.updateSnippet($el, snippets[i], back, requestHistory, perRequestAppend, perRequestPrepend);
 			}
 			$(elements).promise().done(function () {
 				that.completeQueue.fire();
 			});
 		},
-		updateSnippet: function ($el, html, back, requestHistory) {
+		updateSnippet: function ($el, html, back, requestHistory, perRequestAppend, perRequestPrepend) {
 			// Fix for setting document title in IE
 			if ($el.is('title')) {
 				// Don't change title if history is supported and enabled, see https://github.com/vojtech-dobes/nette.ajax.js/issues/151
@@ -539,17 +543,17 @@
 				}
 			} else {
 				this.beforeQueue.fire($el);
-				this.applySnippet($el, html, back);
+				this.applySnippet($el, html, back, perRequestAppend, perRequestPrepend);
 				this.afterQueue.fire($el);
 			}
 		},
 		getElement: function (id) {
 			return $('#' + this.escapeSelector(id));
 		},
-		applySnippet: function ($el, html, back) {
-			if (!back && $el.is('[data-ajax-append]')) {
+		applySnippet: function ($el, html, back, perRequestAppend, perRequestPrepend) {
+			if (!back && ($el.is('[data-ajax-append]') || perRequestAppend.indexOf($el[0].id) > -1)) {
 				$el.append(html);
-			} else if (!back && $el.is('[data-ajax-prepend]')) {
+			} else if (!back && ($el.is('[data-ajax-prepend]') || perRequestPrepend.indexOf($el[0].id) > -1)) {
 				$el.prepend(html);
 			} else if ($el.html() !== html || /<[^>]*script/.test(html)) {
 				$el.html(html);
