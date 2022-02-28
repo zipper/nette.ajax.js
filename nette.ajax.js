@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2012-2014 Vojtěch Dobeš
  * @license MIT
  *
- * @version 2.5.0
+ * @version 2.5.1
  */
 
 (function(window, $, undefined) {
@@ -551,6 +551,9 @@
 			return $('#' + this.escapeSelector(id));
 		},
 		applySnippet: function ($el, html, back, perRequestAppend, perRequestPrepend) {
+			if ($el.length === 0) {
+				return;
+			}
 			if (!back && ($el.is('[data-ajax-append]') || perRequestAppend.indexOf($el[0].id) > -1)) {
 				$el.append(html);
 			} else if (!back && ($el.is('[data-ajax-prepend]') || perRequestPrepend.indexOf($el[0].id) > -1)) {
