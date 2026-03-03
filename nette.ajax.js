@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2012-2014 Vojtěch Dobeš
  * @license MIT
  *
- * @version 2.5.1
+ * @version 2.6.0
  */
 
 (function(window, $, undefined) {
@@ -184,7 +184,7 @@
 		 * @return {xhr|null}
 		 */
 		this.ajax = function (settings, ui, e) {
-			if ($.type(settings) === 'string') {
+			if (typeof settings === 'string') {
 				settings = {url: settings};
 			}
 			if (!settings.nette && ui && e) {
@@ -225,7 +225,7 @@
 					}
 					if (typeof settings.off === 'string') settings.off = [settings.off];
 					settings.off = $.grep($.each(settings.off, function (off) {
-						return $.trim(off);
+						return off.trim();
 					}), function (off) {
 						return off.length;
 					});
@@ -603,13 +603,13 @@
 	// option to abort by ESC (thx to @vrana)
 	$.nette.ext('abort', {
 		init: function () {
-			$('body').keydown($.proxy(function (e) {
+			$('body').keydown((function (e) {
 				if (this.xhr && (e.keyCode.toString() === '27' // Esc
 					&& !(e.ctrlKey || e.shiftKey || e.altKey || e.metaKey))
 				) {
 					this.xhr.abort();
 				}
-			}, this));
+			}).bind(this));
 		},
 		start: function (xhr) {
 			this.xhr = xhr;
