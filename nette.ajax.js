@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2012-2014 Vojtěch Dobeš
  * @license MIT
  *
- * @version 2.6.0
+ * @version 2.6.1
  */
 
 (function(window, $, undefined) {
@@ -224,9 +224,9 @@
 						settings.off = rawOff;
 					}
 					if (typeof settings.off === 'string') settings.off = [settings.off];
-					settings.off = $.grep($.each(settings.off, function (off) {
+					settings.off = settings.off.map(function (off) {
 						return off.trim();
-					}), function (off) {
+					}).filter(function (off) {
 						return off.length;
 					});
 				}
